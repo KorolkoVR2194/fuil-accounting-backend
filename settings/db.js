@@ -1,11 +1,13 @@
 const mssql = require('mssql')
 
+const env = require('./../dbenv')
+
 const sqlConfig = {
 
-server:'localhost',
-user:'userfuil',
-password:'111111',
-database:'db_fuil',
+server:     env.SERVER,
+user:       env.USER,
+password:   env.PASSWORD,
+database:   env.DATABASE,
 options: {
     trustServerCertificate: true,
   }

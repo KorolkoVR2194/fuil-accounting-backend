@@ -7,7 +7,7 @@ module.exports = (app)=>{
         .route('/api/users')
         .get(usersController.getAllUsers)
     app
-        .route('/api/users/signup')
-        .post(usersController.getAllUsers)
+        .route('/api/auth/signup')
+        .post(function(req,res){usersController.signup})
 
 }
