@@ -6,8 +6,9 @@ module.exports = (app)=>{
     app
         .route('/api/users')
         .get(usersController.getAllUsers)
+
     app
         .route('/api/auth/signup')
-        .post(function(req,res){usersController.signup})
+        .post(usersController.signup)
 
 }
