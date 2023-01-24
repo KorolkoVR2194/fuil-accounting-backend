@@ -1,6 +1,8 @@
 'use strics'
 
 const bcrypt = require('bcryptjs')
+const jwt =require('jsonwebtoken')
+const config =require('./../config')
 const response = require('./../response')
 const db = require('./../settings/db')
 
@@ -21,7 +23,6 @@ exports.signup = (req,res)=>{
         if (error){
             response.status(400,error,res)
         } else if(typeof rows !== 'undefined' && rows.recordset.length>0){
-            console.log(rows.recordset)
             const row = JSON.parse(JSON.stringify(rows.recordset))
             row.map(rw=>{
                 response.status(302,{message:`Користувач з таким email =${rw.email} вже зареєстрований!`},res)
@@ -29,12 +30,8 @@ exports.signup = (req,res)=>{
             })
         } else {
             const email = req.body.email;
-            /*const phone = req.body.phone;*/
             const solt = bcrypt.genSaltSync(15)
-            
             const password = bcrypt.hashSync(req.body.password,solt);
-
-            
 
             const sql ="INSERT INTO [Users] ([email],[password]) VALUES ('"+email+"','"+password+"')"
             db.query(sql,(error,result)=>{
@@ -49,4 +46,36 @@ exports.signup = (req,res)=>{
     })
    
 
+}
+
+exports.signin = (req,res)=>{
+    db.query("SELECT id,email,password FROM Users WHERE email='"+req.body.email+"'",(error,rows,filds)=>{
+        if (error){
+            response.status(400,error,res)
+        } 
+        if (rows.recordset.length <= 0){
+            response.status(401,{message:`Користувач з email - ${req.body.email} не зареєстрований.`},res)
+        } else {
+            const row = JSON.parse(JSON.stringify(rows.recordset))
+            row.map(rw=>{
+                const password = bcrypt.compareSync(req.body.password,rw.password)
+                if (password){
+                    //Якщо true OK
+                    const token = jwt.sign({
+                        userId:rw.id,
+                        email:rw.email
+                    },config.JWT,{
+                        expiresIn:120*120
+                    })
+                    response.status(200,{token: `Bearer ${token}`},res)
+                } else {
+                    //Пароль невірний
+                    response.status(401,{message:"Пароль не вірний."},res)
+                }
+                return true
+            })
+           
+        }
+    })
+    /*response.status(200,'Login in',res)*/
 }
