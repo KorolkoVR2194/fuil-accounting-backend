@@ -26,7 +26,14 @@ module.exports = (app)=>{
 
     app
         .route('/api/dic/fuil')
-        .get(fuilController.getDicFuil)
+        .get(passport.authenticate('jwt',{session:false}),fuilController.getDicFuil)
+        
+    app
+        .route('/api/dic/fuil/add')
+        .post(passport.authenticate('jwt',{session:false}),fuilController.setDicFuil)
+
+
+
 
     app
         .route('/api/dic/transport/add')
